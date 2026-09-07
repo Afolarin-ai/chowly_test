@@ -31,11 +31,12 @@ real, polished UI.
 ```
 chowly/
 ├── app/
-│   ├── main.py          # FastAPI app + all API routes
-│   ├── models.py        # SQLAlchemy tables
-│   ├── schemas.py       # Pydantic request/response models
-│   ├── seed.py          # loads restaurant, menu, and staff on startup
-│   ├── database.py      # engine/session setup, SQLite<->Postgres switch
+│   ├── __init__.py       # makes `app` a Python package
+│   ├── main.py           # FastAPI app + all API routes
+│   ├── models.py         # SQLAlchemy tables
+│   ├── schemas.py        # Pydantic request/response models
+│   ├── seed.py           # loads restaurant, menu, and staff on startup
+│   ├── database.py       # engine/session setup, SQLite<->Postgres switch
 │   └── static/           # the entire frontend
 │       ├── index.html
 │       ├── css/style.css
