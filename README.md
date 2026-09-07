@@ -254,7 +254,7 @@ of scaffolding.
 
 ---
 
-## 3. Application behaviour
+## 3. The specific behaviour of the application
 
 **Menu browsing.** A customer opens the app and lands on the Customer tab
 by default. Food and drinks are shown in separate sections, each item
