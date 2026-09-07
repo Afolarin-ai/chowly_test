@@ -212,10 +212,23 @@ of scaffolding.
   second rule for a very similar situation.
 
 **What I corrected / rejected:**
-- _[Fill this in with anything you personally changed after reviewing the
-  code — e.g. menu items, copy, a design tweak, a business rule you
-  wanted different. Be specific; this section should reflect your actual
-  review, not Claude's.]_
+- Rejected the first data model outright — even though it worked, it
+  wasn't the one I'd actually designed and been graded on, so I had it
+  fully restructured to match my original document rather than accept
+  the shortcut version.
+- Rejected phone number as a required field once I saw it sitting in
+  the actual checkout flow — it added friction for no real benefit in
+  an app with no login, so I had it dropped and made properly optional
+  on the backend, not just hidden in the UI.
+- Pushed back on the single "Being prepared" status label as
+  ambiguous — a waiter picking up an order and a chef actually starting
+  to cook are two different moments, and I wanted the label to say
+  which one had actually happened.
+- Rejected the first visual pass as too safe — illustrated icons, a
+  muted palette, background photos washed almost to invisibility. Asked
+  for real dish photography, then a second time for bolder fonts, more
+  saturated color, and backgrounds that were actually visible rather
+  than decorative.
 
 **What I verified myself, rather than taking on faith:**
 - Every screen and the full order lifecycle (place → assign → per-item
@@ -223,7 +236,21 @@ of scaffolding.
   clicking through the running app — not just reading the code — both
   before and after the model reconciliation, since the rewrite touched
   every layer of the stack.
-- _[Add anything else you personally re-checked before submitting.]_
+- Walked through the actual Neon database setup and Render deployment
+  myself rather than taking the instructions on faith — along the way I
+  caught that my extracted project was missing its `.git` folder (my
+  file manager was just hiding dotfiles, not a real bug) and confirmed
+  the fix before moving on.
+- Noticed independently that the README had gone stale after a run of
+  feature commits, by checking it against the actual commit history
+  rather than assuming it was current.
+- Flagged things that looked off during my own use of the app — an
+  apparent missing waiting-time display, and a report of orders looking
+  duplicated on the customer page — rather than assuming everything was
+  fine. The first turned out to be a screenshot-tool artifact, confirmed
+  against the live DOM state, not a real bug; the second I chose to
+  deprioritize rather than chase down immediately, and it's noted as an
+  open item in the Bonus section above instead of being quietly dropped.
 
 ---
 
