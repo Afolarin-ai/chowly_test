@@ -111,26 +111,49 @@ per order.
 
 ### Visual design
 Menu items show real dish photography (resized and compressed from the
-original uploads down to a few KB each) instead of stock icons, laid out
-like a typical food-ordering app: photo on top, name/price/controls
-below, with a category-coded accent stripe (marigold for food, teal for
-drinks) along the top edge of each card. Two venue photos (kitchen,
-dining room) sit behind everything and swap with the Customer/Waiter
-toggle — visible enough for real ambient depth, not just a decorative
-gradient, with legibility coming from frosted-glass panels
-(`backdrop-filter: blur`) behind the header and intro text rather than
-from flattening the photo into near-invisibility. Staff are represented
-with generated initials avatars (a deterministic color per name), not
-fake stock headshots of people who don't exist. Type pairs Fraunces
-(display — pushed to a heavier weight, with italic used for the tagline
-and category headers) with Sora (body/UI). The color palette is
-deliberately saturated rather than a muted "safe" version of itself —
-status pills, prices, and section accents all use fuller-strength color
-rather than pastel tints. Motion is scoped deliberately: one staggered
-entrance for the menu on first load, and functional micro-motion
-elsewhere (the role toggle, the cart bar, a prep row popping when
-checked off, a ticket glowing once when paid) — not hover animations on
-every card, which reads as generic rather than intentional.
+original uploads down to a few KB each, re-cropped to a 4:5 portrait
+ratio to match how the source photos were actually shot rather than
+force-cropping them into a landscape shape that cut off parts of the
+dish) instead of stock icons, laid out like a typical food-ordering app:
+photo on top, name/price/controls below, with a category-coded accent
+stripe (marigold for food, teal for drinks) along the top edge of each
+card. Two venue photos (kitchen, dining room) sit behind everything and
+swap with the Customer/Waiter toggle — visible enough for real ambient
+depth, not just a decorative gradient, with legibility coming from
+frosted-glass panels (`backdrop-filter: blur`) behind the header and
+intro text rather than from flattening the photo into near-invisibility.
+Staff are represented with generated initials avatars (a deterministic
+color per name), not fake stock headshots of people who don't exist.
+Type pairs Fraunces (display — pushed to a heavier weight, with italic
+used for the tagline and category headers, which run large — 34px — as
+a proper printed-menu section divider with a trailing accent rule rather
+than a small caption easy to skim past) with Sora (body/UI). The color
+palette is deliberately saturated rather than a muted "safe" version of
+itself — status pills, prices, and section accents all use
+fuller-strength color rather than pastel tints.
+
+Beyond the base palette, the app also has:
+- **A full dark mode.** A sun/moon toggle in the header flips every
+  color token at once via a `[data-theme="dark"]` attribute — including
+  the background-photo overlay tint (a dark charcoal wash instead of an
+  ivory one, so the photo reads moodier rather than mismatched), the
+  frosted panels, and a `--surface` token introduced specifically so
+  card backgrounds could invert too. Preference persists in
+  `localStorage`.
+- **Torn-paper ticket edges.** Every order ticket has a genuine zigzag
+  top edge (`clip-path: polygon()`, not an image) with the background
+  visible through the notches, instead of a plain straight card border.
+- **A kitchen ticket rail.** Active orders on the waiter's Floor screen
+  visually hang from a metal rail bar with a small punched "spike hole"
+  and a slight alternating tilt per ticket — reinforcing the paper-ticket
+  concept rather than just another card stack. Scoped to active orders
+  only, so the rail itself signals "still live."
+
+Motion is scoped deliberately: one staggered entrance for the menu on
+first load, and functional micro-motion elsewhere (the role toggle, the
+cart bar, a prep row popping when checked off, a ticket glowing once
+when paid) — not hover animations on every card, which reads as generic
+rather than intentional.
 
 ### Deployment
 See [Section 6](#6-how-to-deploy-it-yourself) below for the exact steps —
@@ -193,6 +216,31 @@ of scaffolding.
    checking the actual DOM state directly rather than assuming a
    screenshot showing it was just a rendering artifact (which is what an
    earlier, similar-looking screenshot had turned out to be).
+8. Prompted by the assignment's own "your design will make you stand
+   out" line, I asked what else could be done. Claude proposed six
+   options with time estimates for each; I picked the three biggest —
+   torn-paper ticket edges, a kitchen ticket rail for the waiter view,
+   and a full dark mode — rather than the smaller, cheaper ones.
+9. Testing that batch myself surfaced five real, separate bugs, each
+   fixed in its own pass: qty buttons and form fields were invisible in
+   dark mode (form controls don't inherit page text color by default in
+   browsers — a genuine CSS quirk, not something obvious from a design
+   review); the rail's spike-hole was invisible because it was being
+   silently clipped away by the ticket's own torn-edge `clip-path`, not
+   a color problem; rating stars and typed complaint text were being
+   wiped every ~6 seconds by the background poll rebuilding the whole
+   page (I described this as the page "refreshing every 5 seconds"
+   before we knew the cause); the same issue also reset the
+   chef/bartender dropdown before a waiter could hit Record; and the
+   waiter stats panel was counting cancelled orders toward "orders
+   today" and even letting a cancelled order win "top seller."
+10. I flagged that most of the food photos looked oddly zoomed in and
+    cropped. The cause: the original uploads were mostly tall portrait
+    shots, force-cropped to a landscape 4:3 card at upload time — for
+    the suya platter specifically, that crop had kept only about half
+    the photo's height. Reprocessed every dish photo from the original
+    uploads at a 4:5 portrait ratio matching how they were actually
+    shot, instead of the shape the card design assumed.
 
 **What I accepted:**
 - The overall architecture (single FastAPI service serving both API and
@@ -211,6 +259,11 @@ of scaffolding.
   (nothing prepared yet) being reused for both Cancel and — when I asked
   about it — the not-yet-built Edit feature, rather than inventing a
   second rule for a very similar situation.
+- The fix approach for every bug in pass 9 — a shared "draft" pattern
+  for anything a poll could wipe (rating, complaint, chef/bartender
+  selection) rather than a one-off fix per form, and a status filter in
+  the stats queries rather than hiding cancelled orders from the
+  database entirely.
 
 **What I corrected / rejected:**
 - Rejected the first data model outright — even though it worked, it
@@ -230,6 +283,15 @@ of scaffolding.
   for real dish photography, then a second time for bolder fonts, more
   saturated color, and backgrounds that were actually visible rather
   than decorative.
+- Rejected the first version of the kitchen rail — the ticket sat too
+  far from the rail bar (a 26px gap) with a spike-hole too small and
+  too subtle to read as connected to anything. Asked directly "is this
+  how the hanger feature is supposed to work?" rather than assuming it
+  was intentional, which is what prompted the actual clip-path bug to
+  get found.
+- Rejected the Food/Drinks section headers as too small (21px) to read
+  as real section dividers, and asked what else should change rather
+  than just accepting a single size bump.
 
 **What I verified myself, rather than taking on faith:**
 - Every screen and the full order lifecycle (place → assign → per-item
@@ -334,7 +396,10 @@ already refreshes every few seconds) — no page reload needed.
 **Today's numbers.** The waiter dashboard shows a small live panel:
 revenue today, order count, the top-selling item, and the average
 rating — all computed from data the app already has (`Payment`,
-`OrderItem`, `Rating`), scoped to the current date.
+`OrderItem`, `Rating`), scoped to the current date. Cancelled orders are
+explicitly excluded from the order count and top-seller calculation —
+revenue and rating were already unaffected by cancellations, since a
+cancelled order can never reach payment or rating in the first place.
 
 **Table QR codes.** Every table gets a generated QR code
 (`/api/qr/{table_number}`) encoding a link straight back to the ordering
@@ -349,6 +414,15 @@ browser's print dialog — labelled "KITCHEN TICKET" for an unpaid order
 or "RECEIPT" once it's paid, matching what a restaurant would actually
 want to hand someone or stick on a rail.
 
+**Design escalation.** The assignment specifically calls out that
+"design will make you stand out," so beyond the base visual pass
+described under Visual Design in Section 1 — real dish photography, a
+saturated color palette, motion — the app also has a full dark mode,
+torn-paper ticket edges, and a kitchen ticket rail that active orders
+visually hang from. None of it was required; all of it was built and
+tested specifically because the design itself was called out as
+something worth investing in.
+
 **Known gaps, honestly.** Editing an order's items before prep starts
 (same eligibility rule as cancel) was discussed and scoped — roughly a
 30–45 minute build — but hasn't been built yet as of this document. A
@@ -362,32 +436,34 @@ listed here rather than silently left out.
 ## 5. How to use it (walkthrough)
 
 1. Open the live link. You land on the **Customer** view.
-2. Enter your name and a table number (any number — there's no real
+2. There's a sun/moon icon at the top right — click it to switch between
+   light and dark mode. Your choice is remembered on future visits.
+3. Enter your name and a table number (any number — there's no real
    table registry).
-3. Use the **+ / −** buttons on any menu item to build an order. A bar
+4. Use the **+ / −** buttons on any menu item to build an order. A bar
    appears at the bottom showing your item count and total.
-4. Press **Place order**. Your order appears under "Your orders" with a
+5. Press **Place order**. Your order appears under "Your orders" with a
    status of *Placed* and an estimated waiting time.
-5. Click **Waiter** at the top right to switch roles (no login — this is
+6. Click **Waiter** at the top right to switch roles (no login — this is
    a simple view switch, as the assignment allows).
-6. Pick your name from **You are**. Your new order appears at the top.
-7. Press **Assign to me**. A checklist appears — one row per item.
-8. For each row, pick the chef (food items) or bartender (drink items)
+7. Pick your name from **You are**. Your new order appears at the top.
+8. Press **Assign to me**. A checklist appears — one row per item.
+9. For each row, pick the chef (food items) or bartender (drink items)
    who prepared it, and press **Record**.
-9. Once every row is checked off, press **Mark served**.
-10. Switch back to **Customer** — your ticket now shows *Served*, a
+10. Once every row is checked off, press **Mark served**.
+11. Switch back to **Customer** — your ticket now shows *Served*, a
     **Pay (pretend)** button, a star-rating form, and a complaint form.
     Use either, both, or neither.
-11. Pressing **Pay (pretend)** marks the order paid and moves it out of
+12. Pressing **Pay (pretend)** marks the order paid and moves it out of
     the waiter's active list into **Settled tonight**.
-12. Any ticket has a **Print** button (kitchen ticket before payment,
+13. Any ticket has a **Print** button (kitchen ticket before payment,
     receipt after) that opens your browser's print dialog with a clean,
     minimal version of the ticket.
-13. While an order is still just placed, or assigned but untouched, its
+14. While an order is still just placed, or assigned but untouched, its
     ticket also shows a **Cancel order** button — try it, then try
     placing a fresh order and letting a waiter start prep before
     checking again; the button is gone once prep has begun.
-14. On the Floor screen, waiters can mark a dish sold out under **Menu
+15. On the Floor screen, waiters can mark a dish sold out under **Menu
     availability** (it disappears from the customer menu within a few
     seconds), see **today's revenue/orders/top-seller/rating**, and open
     a **printable sheet of table QR codes** — each one deep-links back
