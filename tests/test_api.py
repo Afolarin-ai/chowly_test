@@ -191,6 +191,27 @@ def test_pay_creates_payment_with_pretend_reference(client):
     body = res.json()
     assert body["status"] == "paid"
     assert body["payment"]["transaction_reference"].startswith("PRETEND-")
+    assert body["payment"]["tip_amount"] == 0.0  # no tip given -> defaults to 0
+
+
+def test_pay_with_tip_adds_to_total(client):
+    order_id = make_order(client, items=[{"menu_item_id": JOLLOF_RICE, "quantity": 1}]).json()["id"]
+    _serve_order(client, order_id)
+    res = client.post(f"/api/orders/{order_id}/pay", json={"tip_amount": 675})
+    assert res.status_code == 200
+    payment = res.json()["payment"]
+    assert payment["tip_amount"] == 675.0
+    assert payment["amount"] == 4500.0 + 675.0  # subtotal + tip
+
+
+def test_stats_include_tips_today(client):
+    order_id = make_order(client, items=[{"menu_item_id": JOLLOF_RICE, "quantity": 1}]).json()["id"]
+    _serve_order(client, order_id)
+    client.post(f"/api/orders/{order_id}/pay", json={"tip_amount": 500})
+
+    stats = client.get("/api/stats/today").json()
+    assert stats["tips_today"] == 500.0
+    assert stats["revenue_today"] == 4500.0 + 500.0  # revenue includes the tip
 
 
 def test_pay_rejects_double_payment(client):
