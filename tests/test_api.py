@@ -204,14 +204,17 @@ def test_pay_with_tip_adds_to_total(client):
     assert payment["amount"] == 4500.0 + 675.0  # subtotal + tip
 
 
-def test_stats_include_tips_today(client):
+def test_stats_exclude_tips_from_revenue(client):
     order_id = make_order(client, items=[{"menu_item_id": JOLLOF_RICE, "quantity": 1}]).json()["id"]
     _serve_order(client, order_id)
     client.post(f"/api/orders/{order_id}/pay", json={"tip_amount": 500})
 
     stats = client.get("/api/stats/today").json()
     assert stats["tips_today"] == 500.0
-    assert stats["revenue_today"] == 4500.0 + 500.0  # revenue includes the tip
+    # Revenue is food/drink sales only -- tips are a pass-through to
+    # staff, not restaurant revenue, even though they were part of what
+    # was actually charged (that full amount lives on Payment.amount).
+    assert stats["revenue_today"] == 4500.0
 
 
 def test_pay_rejects_double_payment(client):

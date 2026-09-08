@@ -91,8 +91,11 @@ def stats_today(db: Session = Depends(get_db)):
     on data the app already has, purely as a bonus."""
     today = date.today()
 
+    # Revenue is food/drink sales only — tips are a pass-through to staff,
+    # not restaurant revenue, so they're subtracted back out here even
+    # though they're part of what was actually charged (Payment.amount).
     revenue_today = (
-        db.query(func.coalesce(func.sum(models.Payment.amount), 0.0))
+        db.query(func.coalesce(func.sum(models.Payment.amount - models.Payment.tip_amount), 0.0))
         .join(models.Order, models.Payment.order_id == models.Order.id)
         .filter(models.Order.order_date == today)
         .scalar()
