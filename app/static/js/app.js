@@ -165,11 +165,9 @@ document.querySelectorAll(".role-btn").forEach((btn) => {
 // ---------------------------------------------------------------------
 function renderCustomer(animateEntrance) {
   const categories = {};
-  state.menu
-    .filter((item) => item.availability_status !== "sold_out")
-    .forEach((item) => {
-      (categories[item.item_type] = categories[item.item_type] || []).push(item);
-    });
+  state.menu.forEach((item) => {
+    (categories[item.item_type] = categories[item.item_type] || []).push(item);
+  });
 
   const categoryLabels = { food: "Food", drink: "Drinks" };
   let runningIndex = 0;
@@ -200,7 +198,7 @@ function renderCustomer(animateEntrance) {
 
   app.innerHTML = `
     <div class="intro-panel">
-      <div class="section-title">Tonight's menu</div>
+      <div class="section-title hero-heading">Tonight's menu</div>
       <div class="section-hint">Tell us who you are and which table you're at, then send your order to the kitchen.</div>
       <div class="table-picker">
         <label for="name-input">Your name</label>
@@ -251,18 +249,24 @@ function menuItemHtml(item, staggerIndex) {
   const qty = state.cart[item.id] || 0;
   const styleAttr = staggerIndex !== null ? ` style="--i:${staggerIndex}"` : "";
   const typeClass = item.item_type === "drink" ? " is-drink" : "";
+  const soldOut = item.availability_status === "sold_out";
+  const soldOutClass = soldOut ? " is-sold-out" : "";
+  const soldOutBadge = soldOut ? `<span class="sold-out-badge">Sold out</span>` : "";
   return `
-    <div class="menu-item${typeClass}"${styleAttr}>
-      ${menuItemPhotoHtml(item)}
+    <div class="menu-item${typeClass}${soldOutClass}"${styleAttr}>
+      <div class="menu-item-photo-wrap">
+        ${menuItemPhotoHtml(item)}
+        ${soldOutBadge}
+      </div>
       <div class="menu-item-body">
         <div class="menu-item-name">${item.item_name}</div>
         <div class="menu-item-meta">${item.prep_time_minutes} min</div>
         <div class="menu-item-footer">
           <div class="menu-item-price">${money(item.price)}</div>
           <div class="qty-control">
-            <button class="qty-btn" data-qty-action="-1" data-id="${item.id}" aria-label="Remove one ${item.item_name}">&minus;</button>
+            <button class="qty-btn" data-qty-action="-1" data-id="${item.id}" aria-label="Remove one ${item.item_name}"${soldOut ? " disabled" : ""}>&minus;</button>
             <span class="qty-value">${qty}</span>
-            <button class="qty-btn" data-qty-action="1" data-id="${item.id}" aria-label="Add one ${item.item_name}">&plus;</button>
+            <button class="qty-btn" data-qty-action="1" data-id="${item.id}" aria-label="Add one ${item.item_name}"${soldOut ? " disabled" : ""}>&plus;</button>
           </div>
         </div>
       </div>
@@ -748,7 +752,7 @@ function renderWaiter() {
 
   app.innerHTML = `
     <div class="intro-panel">
-      <div class="section-title">Floor</div>
+      <div class="section-title hero-heading">Floor</div>
       <div class="section-hint">Pick up new orders, record who prepared each item, and mark them served.</div>
       <div class="table-picker">
         <label>You are</label>

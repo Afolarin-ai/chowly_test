@@ -295,6 +295,18 @@ button:active { transform: translateY(1px); }
   margin: 0 0 4px;
 }
 
+/* The whisper-weight editorial treatment — reserved for the two entry
+   headings a person actually lands on ("Tonight's menu", "Floor"), not
+   every section label. Big, ultra-light, uppercase, tightly tracked. */
+.hero-heading {
+  font-size: 52px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  margin-bottom: 10px;
+}
+
 .section-hint {
   font-size: 14px;
   color: var(--slate-soft);
@@ -387,12 +399,51 @@ button:active { transform: translateY(1px); }
   transform: translateY(-3px);
 }
 
+.menu-item-photo-wrap {
+  position: relative;
+}
+
 .menu-item-photo {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   display: block;
   background: var(--ivory-dim);
+}
+
+.menu-item.is-sold-out .menu-item-photo {
+  filter: grayscale(85%);
+  opacity: 0.55;
+}
+
+.menu-item.is-sold-out .menu-item-name,
+.menu-item.is-sold-out .menu-item-price {
+  color: var(--slate-soft);
+}
+
+.sold-out-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--slate);
+  color: var(--ivory);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.qty-btn:disabled:hover {
+  background: transparent;
+  color: inherit;
 }
 
 .menu-item-body {
@@ -425,7 +476,7 @@ button:active { transform: translateY(1px); }
 .menu-item-price {
   font-weight: 700;
   font-size: 15px;
-  color: var(--marigold-deep);
+  color: var(--slate);
 }
 
 .qty-control {
@@ -939,7 +990,7 @@ button:active { transform: translateY(1px); }
   gap: 14px;
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px dashed var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .stat-card {
@@ -952,7 +1003,7 @@ button:active { transform: translateY(1px); }
   font-family: var(--serif);
   font-size: 24px;
   font-weight: 650;
-  color: var(--marigold-deep);
+  color: var(--slate);
 }
 
 .stat-label {
@@ -966,7 +1017,7 @@ button:active { transform: translateY(1px); }
 .manage-menu {
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px dashed var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .manage-menu-list {
@@ -1080,6 +1131,7 @@ button:active { transform: translateY(1px); }
   #app { padding: 24px 20px 100px; }
   .cart-bar { padding: 14px 20px; flex-direction: column; gap: 10px; align-items: flex-start; }
   .scene-glow { display: none; }
+  .hero-heading { font-size: 34px; }
 }
 
 /* ---------- Accessibility ---------- */
